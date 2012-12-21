@@ -1,0 +1,8 @@
+firstrun: true
+MySQL:
+    Host:
+        Address: localhost
+        User: user
+        Password: password
+        Database: RubinBank
+        Table_Users: Users
