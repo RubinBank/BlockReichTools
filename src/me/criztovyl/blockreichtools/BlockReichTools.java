@@ -25,27 +25,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BlockReichTools extends JavaPlugin{
 	private static Logger log;
 	private static Connection con;
-	//private Logger console;
 	public void onEnable(){
 		log = this.getLogger();
-		//console = Bukkit.getServer().getLogger();
 		log.info("BlockReichTools enabeling");
-		if(Config.firstRun()){
-			info("It seems you running BlockReichTools the first time...");
-			info("Will not create anything, please first edit config.yml");
-			this.saveDefaultConfig();
-		}
-		else{
-			Bukkit.getPluginManager().registerEvents(new Listeners(), this);
-			this.saveDefaultConfig();
-			try {
-				con = DriverManager.getConnection(Config.MySQLConnectionURL());
-				Statement stmt = con.createStatement();
-				
-				stmt.executeUpdate("create table if not exists " + Config.UserTable() + " (id int auto_increment not null primary key, user varchar(50), lastlog date, password varchar(40))");
-			} catch (SQLException e) {
-				log.severe("SQL Exception:\n" + e.toString() + "\nAt Plugin-enable SQL-Block");
-			}
+		this.saveDefaultConfig();
+		Bukkit.getPluginManager().registerEvents(new Listeners(), this);
+		this.saveDefaultConfig();
+		try {
+			con = DriverManager.getConnection(Config.MySQLConnectionURL());
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("create table if not exists " + Config.UserTable() + " (id int auto_increment not null primary key, user varchar(50), lastlog date, password varchar(40))");
+		} catch (SQLException e) {
+			log.severe("SQL Exception:\n" + e.toString() + "\nAt Plugin-enable SQL-Block");
 		}
 		log.info("BlockReichTools enabled");
 	}
