@@ -1,26 +1,34 @@
 package me.criztovyl.blockreichtools.tools;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 
 import me.criztovyl.blockreichtools.BlockReichTools;
 import me.criztovyl.blockreichtools.config.Config;
+import me.criztovyl.blockreichtools.timeshift.TimeShiftType;
+import me.criztovyl.clicklesssigns.ClicklessSigns.SignPos;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class MySQL {
+	//TODO GENERATE A SALT!
 	public static void setPassword(String p_n, String password){
 		try{
-			BlockReichTools.getConnection().createStatement().executeUpdate("UPDATE " + Config.UserTable() + " SET password=SHA1(\"" + password + "\") WHERE user=\"" + p_n + "\"");
+			BlockReichTools.getConnection().createStatement().executeUpdate("UPDATE " + Config.UsersTable() + " SET password=SHA1(\"" + password + "\") WHERE user=\"" + p_n + "\"");
 		} catch(SQLException e){
-			BlockReichTools.severe("SQL Exception: " +  e.toString() + "\nQuery: UPDATE " + Config.UserTable() + " SET password=SHA1(\"" + password + "\") WHERE user=\"" + p_n + "\"");
+			BlockReichTools.severe("SQL Exception: " +  e.toString() + "\nQuery: UPDATE " + Config.UsersTable() + " SET password=SHA1(\"" + password + "\") WHERE user=\"" + p_n + "\"");
 		}
 	}
 	public static boolean inDB(String p_n){
 		try{
-			ResultSet rs = BlockReichTools.getConnection().createStatement().executeQuery("Select user from " + Config.UserTable());
+			ResultSet rs = BlockReichTools.getConnection().createStatement().executeQuery("Select user from " + Config.UsersTable());
 			while(rs.next()){
 				if(rs.getString("user").equals(p_n)){
 					return true;
@@ -34,16 +42,16 @@ public class MySQL {
 	}
 	public static void addUser(String p_n){
 		try{
-			BlockReichTools.getConnection().createStatement().executeUpdate("INSERT INTO " + Config.UserTable() + " (user, lastlog) values(\"" + p_n + "\", NOW())");
+			BlockReichTools.getConnection().createStatement().executeUpdate("INSERT INTO " + Config.UsersTable() + " (user, lastlog) values(\"" + p_n + "\", NOW())");
 		} catch(SQLException e){
-			BlockReichTools.severe("SQL Exception: " + e.toString() + "\nAt addUser Method Query: INSERT INTO " + Config.UserTable() + " (user, lastlog) values(\"" + p_n + "\", NOW())");
+			BlockReichTools.severe("SQL Exception: " + e.toString() + "\nAt addUser Method Query: INSERT INTO " + Config.UsersTable() + " (user, lastlog) values(\"" + p_n + "\", NOW())");
 		}
 	}
 	public static void updateUserLogin(String p_n){
 		try{
-			BlockReichTools.getConnection().createStatement().executeUpdate("Update " + Config.UserTable() + " set lastlog=NOW() where user=\"" + p_n + "\"");
+			BlockReichTools.getConnection().createStatement().executeUpdate("Update " + Config.UsersTable() + " set lastlog=NOW() where user=\"" + p_n + "\"");
 		} catch(SQLException e){
-			BlockReichTools.severe("SQL Exception: " + e.toString() + "\nAt updateUserLogin Method Query: Update " + Config.UserTable() + " set lastlog=NOW() where user=\"" + p_n + "\"");
+			BlockReichTools.severe("SQL Exception: " + e.toString() + "\nAt updateUserLogin Method Query: Update " + Config.UsersTable() + " set lastlog=NOW() where user=\"" + p_n + "\"");
 		}
 	}
 	private enum MySQLCommandType {
@@ -66,7 +74,7 @@ public class MySQL {
 			ResultSet resultset;
 			
 			if(args.length == 0){
-				resultset = stmt.executeQuery("describe " + Config.UserTable());
+				resultset = stmt.executeQuery("describe " + Config.UsersTable());
 			}
 			else{
 				if(args.length > 2){
@@ -115,6 +123,46 @@ public class MySQL {
 			BlockReichTools.severe("MySQL exception:\n" + e.toString());
 			return true;
 		}
+	}
+	public static void addSignToDB(Location loc, SignPos pos, TimeShiftType t){
+		int locX = loc.getBlockX();
+		int locY = loc.getBlockY();
+		int locZ = loc.getBlockZ();
+		UUID world = loc.getWorld().getUID();
+		String query = "INSERT INTO " + Config.HostDatabase() + "." + Config.SignsTable() + " (LocX, LocY, LocZ, LocWorldUUID, Type, Pos, Multi) values(" + locX + ", " + locY + ", "+ locZ + ", \""
+		+ world.toString() +"\", \"" + t.toString() + "\", \"" + pos.toString() + "\", 0)";
+		try{
+			BlockReichTools.getConnection().createStatement().executeUpdate(query);
+		} catch (SQLException e) {
+			BlockReichTools.severe("MySQL Error:\n" + e.toString() + "\nQuery: "+ query);
+		}
+	}
+	public static void loadSigns(){
+		int x, y, z;
+		World world;
+		String query = "SELECT * FROM " + Config.SignsTable();
+		try{
+			ResultSet rs = getCon().createStatement().executeQuery(query);
+			while(rs.next()){
+				x = rs.getInt("LocX");
+				y = rs.getInt("LocY");
+				z = rs.getInt("LocZ");
+				world = Bukkit.getWorld(UUID.fromString(rs.getString("LocWorldUUID")));
+				SignPos pos = SignPos.valueOf(rs.getString("Pos").toUpperCase());
+				TimeShiftType t;
+				if(!rs.getBoolean("Multi"))
+					t = TimeShiftType.valueOf(rs.getString("Type").toUpperCase());
+				else
+					t = TimeShiftType.DEFAULT;
+				Tools.addSign(new Location(world, x, y, z), pos, t);
+			}
+			
+		}catch (SQLException e) {
+			BlockReichTools.severe("SQL Exception @ load Signs\n" + e.toString() + "\nQuery: " + query);
+		}
+	}
+	private static Connection getCon(){
+		return Tools.getConnection();
 	}
 	
 }

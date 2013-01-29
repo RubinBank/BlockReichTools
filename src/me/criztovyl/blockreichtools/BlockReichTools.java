@@ -21,10 +21,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-
+/**
+ * This is BlockReichTools. Tools for your Minecraft Bukkit Server!
+ * @author criztovyl
+ *
+ */
 public class BlockReichTools extends JavaPlugin{
 	private static Logger log;
 	private static Connection con;
+	/**
+	 * Bukkit Stuff
+	 */
 	public void onEnable(){
 		log = this.getLogger();
 		log.info("BlockReichTools enabeling");
@@ -34,15 +41,27 @@ public class BlockReichTools extends JavaPlugin{
 		try {
 			con = DriverManager.getConnection(Config.MySQLConnectionURL());
 			Statement stmt = con.createStatement();
-			stmt.executeUpdate("create table if not exists " + Config.UserTable() + " (id int auto_increment not null primary key, user varchar(50), lastlog date, password varchar(40))");
+			if(Config.isSet("MySQL.Host.Table_Users"))
+				stmt.executeUpdate("create table if not exists " + Config.UsersTable() + " (id int auto_increment not null primary key, user varchar(50), lastlog date, password varchar(40))");
+			else
+				log.warning("The Users Table is not set in the Config!");
+			if(Config.isSet("MySQL.Host.Table_Signs"))
+				stmt.executeUpdate("create table if not exists " + Config.SignsTable() + " (id int auto_increment not null primary key, LocX int, LocY int, LocZ int, LocWorldUUID varchar(128), Pos varchar(10), Multi boolean default 1, Type varchar(20))");;
 		} catch (SQLException e) {
 			log.severe("SQL Exception:\n" + e.toString() + "\nAt Plugin-enable SQL-Block");
 		}
+		MySQL.loadSigns();
 		log.info("BlockReichTools enabled");
 	}
+	/**
+	 * Bukkit Stuff
+	 */
 	public void onDisable(){
 		log.info("BlockReichTools disabled");
 	}
+	/**
+	 * Bukkit Stuff
+	 */
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		if(sender instanceof Player){
 			Player player = (Player) sender;
@@ -92,7 +111,7 @@ public class BlockReichTools extends JavaPlugin{
 						return true;
 					}
 					if(args[0].toLowerCase().equals("password") || equals("passwd") || equals("passwort") || equals("pw")){
-						TimeShift.addShiftedBankomat(player.getName(), TimeShiftType.UCP_PASS);
+						TimeShift.addShifted(player.getName(), TimeShiftType.UCP_PASS);
 						return true;
 					}
 					if(args[0].toLowerCase().equals("mysql")){
@@ -117,6 +136,10 @@ public class BlockReichTools extends JavaPlugin{
 		}
 		return false;
 	}
+	/**
+	 * Get the MySQL java.sql.Connection of the DB, Authentication taken from the Configuration File.
+	 * @return the MySQL Connection
+	 */
 	public static Connection getConnection(){
 		try {
 			con = DriverManager.getConnection(Config.MySQLConnectionURL());
@@ -125,12 +148,24 @@ public class BlockReichTools extends JavaPlugin{
 		}
 		return con;
 	}
+	/**
+	 * The BlockReichTools Logger.
+	 * @return the Logger
+	 */
 	public static Logger getLog(){
 		return log;
 	}
+	/**
+	 * Logs a "[SEVERE]" Message.
+	 * @param msg - Severe Message to log.
+	 */
 	public static void severe(String msg){
 		log.severe(msg);
 	}
+	/**
+	 * Logs a "[INFO]" Message.
+	 * @param msg - Info Message to log.
+	 */
 	public static void info(String msg){
 		log.info(msg);
 	}

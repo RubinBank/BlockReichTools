@@ -2,7 +2,12 @@ package me.criztovyl.blockreichtools.config;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-
+/**
+ * The Configuration Tools for BlockReichTools
+ * Only for internal use.
+ * @author criztovyl
+ *
+ */
 public class Config {
 	private static FileConfiguration conf = Bukkit.getPluginManager().getPlugin("BlockReichTools").getConfig();
 	public static String HostAddress(){
@@ -26,10 +31,13 @@ public class Config {
 	public static void setConf(FileConfiguration conf) {
 		Config.conf = conf;
 	}
-	public static String UserTable(){
+	public static String UsersTable(){
 		return conf.getString("MySQL.Host.Table_Users");
 	}
-	public static boolean firstRun(){
-		return conf.getBoolean("firstrun");
+	public static String SignsTable(){
+		return conf.getString("MySQL.Host.Table_Signs");
+	}
+	public static boolean isSet(String path){
+		return conf.isSet(path);
 	}
 }
