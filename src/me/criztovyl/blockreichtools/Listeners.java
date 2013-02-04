@@ -78,17 +78,19 @@ public class Listeners implements Listener{
 	 */
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent evt){
-		if(evt.getBlock().getType().equals(Material.SIGN)){
+		if(evt.getBlock().getType().equals(Material.SIGN) || evt.getBlock().getType().equals(Material.WALL_SIGN)
+				|| evt.getBlock().getType().equals(Material.SIGN_POST)  ){
 			Sign sign = (Sign) evt.getBlock().getState();
-			if(sign.getLine(0).equals("[brt]")){
-				if(sign.getLine(1).equals("Sign")){
+			if(sign.getLine(0).toLowerCase().equals("[brt]")){
+				if(sign.getLine(1).toLowerCase().equals("sign")){
 					ClicklessSigns.removeSign(evt.getBlock().getLocation());
+					MySQL.removeSign(evt.getBlock().getLocation());
 				}
 			}
 		}
 	}
 	/**
-	 * If a Player is in TimeShift, drop if went awy from a (click less) Sign
+	 * If a Player is in TimeShift, drop if went away from a (click less) Sign
 	 * @param evt
 	 */
 	@EventHandler

@@ -1,8 +1,5 @@
 package me.criztovyl.blockreichtools.tools;
 
-import java.sql.Connection;
-
-import me.criztovyl.blockreichtools.BlockReichTools;
 import me.criztovyl.blockreichtools.timeshift.TimeShiftType;
 import me.criztovyl.clicklesssigns.ClicklessSign;
 import me.criztovyl.clicklesssigns.ClicklessSigns;
@@ -14,9 +11,6 @@ import org.bukkit.Location;
 public class Tools {
 	public static void msg(String p_n, String msg){
 		Bukkit.getPlayer(p_n).sendMessage(msg);
-	}
-	public static Connection getConnection(){
-		return BlockReichTools.getConnection();
 	}
 	public static void addSign(Location loc, SignPos pos, TimeShiftType t){
 		MySQL.addSignToDB(loc, pos, t);

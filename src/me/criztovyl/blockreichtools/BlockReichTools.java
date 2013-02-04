@@ -1,16 +1,13 @@
 package me.criztovyl.blockreichtools;
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Logger;
 
 import me.criztovyl.blockreichtools.config.Config;
 import me.criztovyl.blockreichtools.timeshift.TimeShift;
 import me.criztovyl.blockreichtools.timeshift.TimeShiftType;
 import me.criztovyl.blockreichtools.tools.MySQL;
+import me.criztovyl.blockreichtools.tools.MySQL_;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,7 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class BlockReichTools extends JavaPlugin{
 	private static Logger log;
-	private static Connection con;
+	private static MySQL_ mysql;
 	/**
 	 * Bukkit Stuff
 	 */
@@ -37,20 +34,26 @@ public class BlockReichTools extends JavaPlugin{
 		log.info("BlockReichTools enabeling");
 		this.saveDefaultConfig();
 		Bukkit.getPluginManager().registerEvents(new Listeners(), this);
-		this.saveDefaultConfig();
-		try {
-			con = DriverManager.getConnection(Config.MySQLConnectionURL());
-			Statement stmt = con.createStatement();
-			if(Config.isSet("MySQL.Host.Table_Users"))
-				stmt.executeUpdate("create table if not exists " + Config.UsersTable() + " (id int auto_increment not null primary key, user varchar(50), lastlog date, password varchar(40))");
+		log.info("Registered Listeners");
+		mysql = new MySQL_(Config.HostAddress(), Config.HostUser(), Config.HostPassword());
+		String query;
+			if(Config.isSet("MySQL.Host.Table_Users")){
+				query = String.format("Create table if not exists %s (id int auto_increment not null primary key, user varchar(50), lastlog date, password varchar(40))",
+						Config.UsersTable());
+				mysql.executeUpdate(query);
+			}
 			else
 				log.warning("The Users Table is not set in the Config!");
-			if(Config.isSet("MySQL.Host.Table_Signs"))
-				stmt.executeUpdate("create table if not exists " + Config.SignsTable() + " (id int auto_increment not null primary key, LocX int, LocY int, LocZ int, LocWorldUUID varchar(128), Pos varchar(10), Multi boolean default 1, Type varchar(20))");;
-		} catch (SQLException e) {
-			log.severe("SQL Exception:\n" + e.toString() + "\nAt Plugin-enable SQL-Block");
-		}
+			if(Config.isSet("MySQL.Host.Table_Sign")){
+				query = String.format("Create table if not exists %s (id int auto_increment not null primary key, LocX int, LocY int, LocZ int, LocWorldUUID varchar(128), Pos varchar(10), Multi boolean default 1, Type varchar(20))",
+						Config.SignsTable());
+				mysql.executeUpdate(query);
+			}
+			else
+				log.warning("The Signs Table is not set in the Config!");
+		log.info("Checked Tables");
 		MySQL.loadSigns();
+		log.info("Loaded Signs");
 		log.info("BlockReichTools enabled");
 	}
 	/**
@@ -137,18 +140,6 @@ public class BlockReichTools extends JavaPlugin{
 		return false;
 	}
 	/**
-	 * Get the MySQL java.sql.Connection of the DB, Authentication taken from the Configuration File.
-	 * @return the MySQL Connection
-	 */
-	public static Connection getConnection(){
-		try {
-			con = DriverManager.getConnection(Config.MySQLConnectionURL());
-		} catch (SQLException e) {
-			severe("MySQL Exception:\n" + e.toString() + "\nAt BlockReichTools.getConnection");
-		}
-		return con;
-	}
-	/**
 	 * The BlockReichTools Logger.
 	 * @return the Logger
 	 */
@@ -168,5 +159,8 @@ public class BlockReichTools extends JavaPlugin{
 	 */
 	public static void info(String msg){
 		log.info(msg);
+	}
+	public static MySQL_ getMySQL_() {
+		return mysql;
 	}
 }
