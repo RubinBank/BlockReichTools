@@ -130,15 +130,15 @@ public class BlockReichTools extends JavaPlugin{
 						}
 					}
 					if(args[0].toLowerCase().equals("help")){
-						player.sendMessage(ChatColor.GREEN + "/brt day: Zeit auf Tag setzten (08:00h)");
-						player.sendMessage(ChatColor.GREEN + "/brt inv nodirt [X]: entfernt allen oder X Dirtblöcke aus deinem Inventar.");
+						player.sendMessage(ChatColor.GREEN + "/brt day: Zeit auf Tag setzen (08:00h)");
+						player.sendMessage(ChatColor.GREEN + "/brt inv nodirt [X]: entfernt alle oder X Dirtblöcke aus deinem Inventar.");
 						player.sendMessage(ChatColor.GREEN + "/brt inv clear: leert deinen Inventar.");
 						player.sendMessage(ChatColor.GREEN + "/brt rain: Ändert das Wetter");
 						player.sendMessage(ChatColor.GREEN + "/brt passwort: Setzt das Passwort für das WebInterface.");
 						player.sendMessage(ChatColor.GREEN + "/brt help: Diese Hilfe.");
 						return true;
 					}
-					if(args[0].toLowerCase().equals("password") || equals("passwd") || equals("passwort") || equals("pw")){
+					if(args[0].toLowerCase().equals("password") || args[0].toLowerCase().equals("passwd") || args[0].toLowerCase().equals("passwort") || args[0].toLowerCase().equals("pw")){
 						TimeShift.addShifted(player.getName(), TimeShiftType.UCP_PASS);
 						return true;
 					}
