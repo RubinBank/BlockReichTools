@@ -32,10 +32,13 @@ public class Config {
 		Config.conf = conf;
 	}
 	public static String UsersTable(){
-		return conf.getString("MySQL.Host.Table_Users");
+		return HostDatabase() + "." + conf.getString("MySQL.Host.Table_Users");
 	}
 	public static String SignsTable(){
-		return conf.getString("MySQL.Host.Table_Signs");
+		return HostDatabase() + "." + conf.getString("MySQL.Host.Table_Signs");
+	}
+	public static String getGlobalSalt(){
+		return conf.getString("MySQL.Global_Salt");
 	}
 	public static boolean isSet(String path){
 		return conf.isSet(path);
