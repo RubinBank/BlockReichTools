@@ -92,7 +92,7 @@ public class BlockReichTools extends JavaPlugin{
 	/**
 	 * Bukkit Stuff
 	 */
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+	public boolean onCommand(final CommandSender sender, Command cmd, String commandLabel, String[] args){
 		if(sender instanceof Player){
 			Player player = (Player) sender;
 			if(cmd.getName().equalsIgnoreCase("BlockReichTools")){
@@ -132,8 +132,8 @@ public class BlockReichTools extends JavaPlugin{
 						}
 					}
 					if(args[0].toLowerCase().equals("help")){
-						player.sendMessage(ChatColor.GREEN + "/brt day: Zeit auf Tag setzten (08:00h)");
-						player.sendMessage(ChatColor.GREEN + "/brt inv nodirt [X]: entfernt allen oder X Dirtblöcke aus deinem Inventar.");
+						player.sendMessage(ChatColor.GREEN + "/brt day: Zeit auf Tag setzen (08:00h)");
+						player.sendMessage(ChatColor.GREEN + "/brt inv nodirt [X]: entfernt alle oder X Dirtblöcke aus deinem Inventar.");
 						player.sendMessage(ChatColor.GREEN + "/brt inv clear: leert deinen Inventar.");
 						player.sendMessage(ChatColor.GREEN + "/brt rain: Ändert das Wetter");
 						player.sendMessage(ChatColor.GREEN + "/brt passwort: Setzt das Passwort für das WebInterface.");
@@ -142,29 +142,34 @@ public class BlockReichTools extends JavaPlugin{
 					}
 					if(args[0].toLowerCase().equals("password") || equals("passwd") || equals("passwort") || equals("pw")){
 						ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
-							
+							String pw = null;
 							@Override
 							public boolean getSuccess() {
-								// TODO Auto-generated method stub
-								return false;
+								return !(pw == null);
 							}
 							
 							@Override
 							public String getQuestion() {
-								// TODO Auto-generated method stub
-								return null;
+								return "Bitte gebe jetzt dein Passwort ein:";
 							}
 							
 							@Override
 							public String getPlayer() {
-								// TODO Auto-generated method stub
-								return null;
+								return sender.getName();
 							}
 							
 							@Override
 							public void executeAction(AsyncPlayerChatEvent arg0) {
-								// TODO Auto-generated method stub
-								
+								String msg = arg0.getMessage();
+								if(msg != ""){
+									MySQL.setPassword(arg0.getPlayer().getName(), msg);
+									arg0.getPlayer().sendMessage(ChatColor.GREEN + "Passwort gesetzt!");
+									arg0.setMessage("[PASSWORD]");
+								}
+								else{
+									arg0.getPlayer().sendMessage(ChatColor.RED + "Kein Passwort gesetzt!");
+								}
+								arg0.setCancelled(true);
 							}
 						});
 						return true;
