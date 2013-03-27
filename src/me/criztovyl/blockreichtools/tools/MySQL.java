@@ -8,8 +8,6 @@ import java.util.UUID;
 
 import me.criztovyl.blockreichtools.BlockReichTools;
 import me.criztovyl.blockreichtools.config.Config;
-import me.criztovyl.blockreichtools.timeshift.TimeShiftType;
-import me.criztovyl.clicklesssigns.ClicklessSigns.SignPos;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -165,7 +163,7 @@ public class MySQL {
 			return true;
 		}
 	}
-	public static void addSignToDB(Location loc, SignPos pos, TimeShiftType t){
+	public static void addSignToDB(Location loc, SignPos pos, SignType t){
 		String query = String.format("Insert into %s (LocX, LocY, LocZ, LocWorldUUID, Type, Pos, Multi) values (%d, %d, %d, '%s', '%s', '%s', 0)",
 				Config.SignsTable(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getUID().toString(), t.toString(), pos.toString());
 		Connection con = BlockReichTools.getConnection();
@@ -190,11 +188,10 @@ public class MySQL {
 				z = rs.getInt("LocZ");
 				world = Bukkit.getWorld(UUID.fromString(rs.getString("LocWorldUUID")));
 				SignPos pos = SignPos.valueOf(rs.getString("Pos").toUpperCase());
-				TimeShiftType t;
+				SignType t = null;
 				if(!rs.getBoolean("Multi"))
-					t = TimeShiftType.valueOf(rs.getString("Type").toUpperCase());
-				else
-					t = TimeShiftType.DEFAULT;
+					t = SignType.valueOf(rs.getString("Type").toUpperCase());
+				BlockReichTools.severe("Invalid Sign in DB: SignType '" + rs.getString("Type") + "' unknown.");
 				Tools.addSign(new Location(world, x, y, z), pos, t);
 				BlockReichTools.info("Added Sign");
 			}

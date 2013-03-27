@@ -8,15 +8,17 @@ import java.sql.Statement;
 import java.util.logging.Logger;
 
 import me.criztovyl.blockreichtools.config.Config;
-import me.criztovyl.blockreichtools.timeshift.TimeShift;
-import me.criztovyl.blockreichtools.timeshift.TimeShiftType;
 import me.criztovyl.blockreichtools.tools.MySQL;
+import me.criztovyl.clickless.ClicklessPlugin;
+import me.criztovyl.timeshift.MicroShift;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -139,7 +141,32 @@ public class BlockReichTools extends JavaPlugin{
 						return true;
 					}
 					if(args[0].toLowerCase().equals("password") || equals("passwd") || equals("passwort") || equals("pw")){
-						TimeShift.addShifted(player.getName(), TimeShiftType.UCP_PASS);
+						ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
+							
+							@Override
+							public boolean getSuccess() {
+								// TODO Auto-generated method stub
+								return false;
+							}
+							
+							@Override
+							public String getQuestion() {
+								// TODO Auto-generated method stub
+								return null;
+							}
+							
+							@Override
+							public String getPlayer() {
+								// TODO Auto-generated method stub
+								return null;
+							}
+							
+							@Override
+							public void executeAction(AsyncPlayerChatEvent arg0) {
+								// TODO Auto-generated method stub
+								
+							}
+						});
 						return true;
 					}
 					if(args[0].toLowerCase().equals("mysql")){

@@ -2,15 +2,18 @@ package me.criztovyl.blockreichtools.tools;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import me.criztovyl.blockreichtools.BlockReichTools;
-import me.criztovyl.blockreichtools.timeshift.TimeShiftType;
-import me.criztovyl.clicklesssigns.ClicklessSign;
-import me.criztovyl.clicklesssigns.ClicklessSigns;
-import me.criztovyl.clicklesssigns.ClicklessSigns.SignPos;
+import me.criztovyl.clickless.ClicklessSign;
+import me.criztovyl.clickless.ClicklessPlugin;
+import me.criztovyl.timeshift.TimeShifter;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class Tools {
 	/**
@@ -20,42 +23,82 @@ public class Tools {
 		if(Bukkit.getServer().getPlayer(p_n) != null)
 		Bukkit.getServer().getPlayer(p_n).sendMessage(msg);
 	}
-	public static void addSign(Location loc, SignPos pos, TimeShiftType t){
-		MySQL.addSignToDB(loc, pos, t);
+	public static void addSign(final Location loc, SignPos pos, SignType t){
+		Location trigger_ = null;
+		switch(pos){
+		case DOWN:
+			trigger_ = new Location(loc.getWorld(), loc.getBlockX(), loc.getY()-1, loc.getBlockZ());
+			break;
+		case UP:
+			trigger_ = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY()+2, loc.getBlockZ());
+		}
+		final Location trigger = trigger_;
 		switch(t){
-		case CHOOSING:
-			ClicklessSigns.addSign(loc, pos, new ClicklessSign() {
-				
-				@Override
-				public void action(String arg0) {
-					me.criztovyl.blockreichtools.timeshift.TimeShift.addShifted(arg0, me.criztovyl.blockreichtools.timeshift.TimeShiftType.CHOOSING);
-				}
-			});
-			break;
 		case UCP_PASS:
-			ClicklessSigns.addSign(loc, pos, new ClicklessSign() {
-				
+			ClicklessPlugin.getClickless().addClicklessSign(new ClicklessSign() {
+				TimeShifter shifter = new TimeShifter() {
+					ArrayList<String> shifteds = new ArrayList<String>();
+					@Override
+					public void removePlayer(String playername) {
+						shifteds.remove(playername);
+					}
+					
+					@Override
+					public void preChatAction(String playername) {
+						msg(playername, ChatColor.YELLOW + "Chat deaktiviert.\n " + ChatColor.GREEN + "Bitte gebe jetzt dein neues Passwort in den Chat ein!");
+					}
+					
+					@Override
+					public void onChatAction(AsyncPlayerChatEvent evt) {
+						if(shifteds.contains(evt.getPlayer().getName())){
+							MySQL.setPassword(evt.getPlayer().getName(), evt.getMessage());
+							evt.setMessage("[PASSWORD]");
+							evt.setCancelled(true);
+						}
+						
+					}
+					
+					@Override
+					public boolean hasPlayer(String playername) {
+						return shifteds.contains(playername);
+					}
+					
+					@Override
+					public boolean getSuccess(String playername) {
+						return !shifteds.contains(playername);
+					}
+					
+					@Override
+					public void afterChatAction(String playername) {
+						msg(playername, ChatColor.GREEN + "Passwort gesetzt ;)");
+					}
+					
+					@Override
+					public void addPlayer(String playername) {
+						shifteds.add(playername);
+						preChatAction(playername);
+					}
+				};
 				@Override
-				public void action(String arg0) {
-					me.criztovyl.blockreichtools.timeshift.TimeShift.addShifted(arg0, me.criztovyl.blockreichtools.timeshift.TimeShiftType.UCP_PASS);
+				public TimeShifter getTimeShifter() {
+					return shifter;
 				}
-			});
-			break;
-		case DEFAULT:
-			ClicklessSigns.addSign(loc, pos, new ClicklessSign() {
 				
 				@Override
-				public void action(String arg0) {
-					me.criztovyl.blockreichtools.timeshift.TimeShift.addShifted(arg0, me.criztovyl.blockreichtools.timeshift.TimeShiftType.DEFAULT);
+				public void action(String p_n) {}
+				void msg(String playername, String msg){
+					Player p = Bukkit.getServer().getPlayer(playername);
+					if(p != null)
+						p.sendMessage(msg);
 				}
-			});
-			break;
-		default:
-			ClicklessSigns.addSign(loc, pos, new ClicklessSign() {
-				
 				@Override
-				public void action(String arg0) {
-					me.criztovyl.blockreichtools.timeshift.TimeShift.addShifted(arg0, me.criztovyl.blockreichtools.timeshift.TimeShiftType.DEFAULT);
+				public Location getLocation() {
+					return loc;
+				}
+
+				@Override
+				public Location getTrigger() {
+					return trigger;
 				}
 			});
 			break;

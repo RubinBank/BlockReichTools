@@ -1,5 +1,5 @@
 name: BlockReichTools
-version: 2013-02-06
+version: 2013-03-27
 main: me.criztovyl.blockreichtools.BlockReichTools
 prefix: BlockReichTools
 commands:
