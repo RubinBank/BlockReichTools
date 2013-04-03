@@ -140,12 +140,15 @@ public class BlockReichTools extends JavaPlugin{
 						player.sendMessage(ChatColor.GREEN + "/brt help: Diese Hilfe.");
 						return true;
 					}
-					if(args[0].toLowerCase().equals("password") || equals("passwd") || equals("passwort") || equals("pw")){
+					if(args[0].toLowerCase().equals("password") ||
+							args[0].toLowerCase().equals("passwd") ||
+							args[0].toLowerCase().equals("passwort") ||
+							args[0].toLowerCase().equals("pw")){
 						ClicklessPlugin.getShiftHelper().addShifted(new MicroShift() {
-							String pw = null;
+							boolean isSet = false;
 							@Override
 							public boolean getSuccess() {
-								return !(pw == null);
+								return isSet;
 							}
 							
 							@Override
@@ -165,6 +168,7 @@ public class BlockReichTools extends JavaPlugin{
 									MySQL.setPassword(arg0.getPlayer().getName(), msg);
 									arg0.getPlayer().sendMessage(ChatColor.GREEN + "Passwort gesetzt!");
 									arg0.setMessage("[PASSWORD]");
+									isSet = true;
 								}
 								else{
 									arg0.getPlayer().sendMessage(ChatColor.RED + "Kein Passwort gesetzt!");

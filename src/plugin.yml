@@ -1,7 +1,8 @@
 name: BlockReichTools
-version: 2013-03-27
+version: 2013-04-03
 main: me.criztovyl.blockreichtools.BlockReichTools
 prefix: BlockReichTools
+depend: [Clickless]
 commands:
     blockreichtools:
         description: "BlockReichTools command. Help with /brt help"
