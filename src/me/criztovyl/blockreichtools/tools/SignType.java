@@ -1,5 +1,6 @@
 package me.criztovyl.blockreichtools.tools;
 
 public enum SignType {
-UCP_PASS;
+UCP_PASS,
+COMMAND;
 }

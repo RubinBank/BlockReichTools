@@ -1,6 +1,6 @@
 name: BlockReichTools
 version: 2013-04-03
-main: me.criztovyl.blockreichtools.BlockReichTools
+main: me.criztovyl.blockreichtools.BlockReichToolsPlugin
 prefix: BlockReichTools
 depend: [Clickless]
 commands:
